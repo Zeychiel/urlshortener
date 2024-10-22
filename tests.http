@@ -1,0 +1,5 @@
+### GET request to localhost with query parameter
+GET http://localhost:8000/?input=https://www.google.com
+
+### Wrong input
+GET http://localhost:8000/?input=wrongInput
