@@ -17,3 +17,6 @@ docker-run: docker-build
 
 up:
 	docker-compose up --build
+
+lint:
+	golangci-lint run

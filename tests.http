@@ -1,5 +1,68 @@
-### GET request to localhost with query parameter
-GET http://localhost:8000/?input=https://www.google.com
+### 200 OK
+# @name shortener
+POST http://localhost:8000/
 
-### Wrong input
+{
+    "url": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc74"
+}
+
+### 200 OK almost the same url
+# @name shortener2
+POST http://localhost:8000/
+
+{
+    "url": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc7"
+}
+
+### 200 OK returns the same short url than the first one
+# @name shortener3
+POST http://localhost:8000/
+
+{
+    "url": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc74"
+}
+
+
+### 200 OK another one
+# @name shortener4
+POST http://localhost:8000/
+
+{
+    "url": "https://images.prismic.io/stoik/ZenJjnUurf2G3MNZ_Bloc-e%CC%81quipe-dirigeante_Nicolas-Sayer_Directeur-Technique.png?auto=format%2Ccompress&fit=max&w=3840"
+}
+
+
+
+### 405 Method not allowed input
 GET http://localhost:8000/?input=wrongInput
+
+### 400 Missing input parameter
+POST http://localhost:8000/?input=wrongInput
+
+### 400 Missing input parameter
+POST http://localhost:8000/
+
+{
+    "input": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc74"
+}
+
+
+### 200 OK
+@short = {{shortener.response.body.data.url}}
+GET http://localhost:8000/{{short}}
+
+### 200 OK
+@short2 = {{shortener2.response.body.data.url}}
+GET http://localhost:8000/{{short2}}
+
+
+### 200 OK
+@short3 = {{shortener3.response.body.data.url}}
+GET http://localhost:8000/{{short3}}
+
+### 200 OK
+@short4 = {{shortener4.response.body.data.url}}
+GET http://localhost:8000/{{short4}}
+
+### 404
+GET http://localhost:8000/wrong

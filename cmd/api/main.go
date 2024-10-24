@@ -3,12 +3,18 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"log/slog"
 	"net/http"
+	"time"
 	config "urlshortener/configuration"
+	"urlshortener/internal/getter"
 	"urlshortener/internal/shortener"
 
-	"github.com/caarlos0/env/v11"
+	"github.com/caarlos0/env/v6"
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -17,18 +23,36 @@ func main() {
 		panic(err)
 	}
 
-	db := initDb(cfg)
+	// initLogger()
+
+	db := initDB(cfg)
+	// add graceful shutdown
+	defer func() {
+		_ = db.Close()
+	}()
 
 	shortenerUseCase := shortener.NewShortenerUseCase(db)
+	getterUseCase := getter.NewGetterUseCase(db)
 
-	http.Handle("/", shortenerUseCase)
-	fmt.Println("Server is running on port 8000")
-	http.ListenAndServe(":8000", nil)
+	router := mux.NewRouter()
+	router.Handle("/", shortenerUseCase).Methods("POST")
+	router.Handle("/{shortened_url}", getterUseCase).Methods("GET")
+	router.Handle("/metrics", promhttp.Handler()).Methods("GET")
+
+	slog.Info("Server is running on port 8000")
+	server := &http.Server{
+		Addr:              ":8000",
+		ReadHeaderTimeout: 3 * time.Second,
+		Handler:           router,
+	}
+
+	log.Fatal(server.ListenAndServe()) // nolint:gocritic // Well, this should be handled, but for the sake of simplicity,
+	// we'll leave it as is
 }
 
-func initDb(cfg config.Config) *sql.DB {
+func initDB(cfg config.Config) *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		cfg.PG_HOST, cfg.PG_PORT, cfg.PG_USER, cfg.PG_PASSWORD, cfg.PG_DB)
+		cfg.PGHost, cfg.PGPort, cfg.PGUser, cfg.PGPassword, cfg.PGDB)
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {

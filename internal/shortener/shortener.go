@@ -1,12 +1,18 @@
+// Package shortener contains the implementation of the ShortenerUseCase struct, which is responsible
+// for handling the URL shortening logic.
 package shortener
 
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/google/uuid"
+
+	httpresponse "urlshortener/internal/http"
 )
 
 var ErrWrongInput = errors.New("wrong input")
@@ -25,34 +31,53 @@ func NewShortenerUseCase(db *sql.DB) *ShortenerUseCase {
 
 // ServeHTTP implements http.Handler.
 func (s *ShortenerUseCase) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	input := req.URL.Query().Get("input")
-	if input == "" {
-		http.Error(w, "Missing input parameter", http.StatusBadRequest)
-		return
+	var p struct {
+		Input string `json:"url"`
 	}
 
-	err := s.Do(req.Context(), input)
+	err := json.NewDecoder(req.Body).Decode(&p)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httpresponse.ResponseError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, "Input registered successfully")
+	if p.Input == "" {
+		httpresponse.ResponseError(w, "Missing input parameter", http.StatusBadRequest)
+		return
+	}
+
+	shortened, err := s.Do(req.Context(), p.Input)
+	if err != nil {
+		httpresponse.ResponseError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	httpresponse.ResponseOk(w, shortened)
 }
 
 // Do processes the input URL, checks its validity, and inserts it into the database if valid
-func (s *ShortenerUseCase) Do(ctx context.Context, input string) error {
-	if check(input) {
-		return s.Insert(ctx, s.db, input, input)
+func (s *ShortenerUseCase) Do(ctx context.Context, input string) (string, error) {
+	if !check(input) {
+		return "", ErrWrongInput
 	}
-	return ErrWrongInput
+
+	// Check if already exists in the database
+	shortened, err := s.get(ctx, s.db, input)
+	if err != nil {
+		return "", err
+	}
+	if shortened != "" {
+		return shortened, nil
+	}
+	// Apply the shortener algorithm
+	shortened = uuid.New().String()
+
+	return shortened, s.insert(ctx, s.db, input, shortened)
 }
 
 // check validates the input URL
+// TODO: sanitize if need be
 func check(input string) bool {
 	_, err := url.ParseRequestURI(input)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }

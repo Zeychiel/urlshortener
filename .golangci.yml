@@ -1,0 +1,76 @@
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - gosimple
+    - unused
+    - ineffassign
+    - typecheck
+    - gofmt
+    - goimports
+    - gocyclo
+    - dupl
+    - goconst
+    - gocritic
+    - unparam
+    - stylecheck
+    - prealloc
+    - misspell
+    - unconvert
+    - nakedret
+    - unparam
+    - gochecknoinits
+    - gochecknoglobals
+    - whitespace
+    - nestif
+    - funlen
+    #- wsl
+    - godox
+    - exhaustive
+    - gosec
+    - lll
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - wrapcheck
+    - forbidigo
+    - gocognit
+    - goprintffuncname
+    - paralleltest
+    - testpackage
+    - thelper
+    - tparallel
+    - dogsled
+    - gocognit
+    - gocritic
+    - gocyclo
+    - godox
+    - gofmt
+    - goimports
+    - goprintffuncname
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - nestif
+    - noctx
+    - prealloc
+    - rowserrcheck
+    - sqlclosecheck
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+    - wrapcheck
+run:
+  timeout: 5m
+issues:
+  exclude-use-default: false
+  exclude:
+    - "Error return value of .(Close|Log|Print). is not checked"
+    - "should have comment or be unexported"
