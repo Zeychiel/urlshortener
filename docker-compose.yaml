@@ -1,16 +1,16 @@
 services:
-  #app:
-  #  build: .
-  #  ports:
-  #    - "8000:8000"
-  #  depends_on:
-  #    - db
-  #  environment:
-  #    PG_DB: shortener
-  #    PG_USER: user
-  #    PG_PASSWORD: password
-  #    PG_HOST: db
-  #    PG_PORT: 5432
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      PG_DB: shortener
+      PG_USER: user
+      PG_PASSWORD: password
+      PG_HOST: db
+      PG_PORT: 5432
 
   db:
     image: postgres:latest

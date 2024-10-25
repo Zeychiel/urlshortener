@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -16,6 +17,7 @@ import (
 )
 
 var ErrWrongInput = errors.New("wrong input")
+var ErrEmptyInput = errors.New("empty input")
 
 // ShortenerUseCase represents the use case for URL shortening
 type ShortenerUseCase struct {
@@ -37,7 +39,12 @@ func (s *ShortenerUseCase) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	err := json.NewDecoder(req.Body).Decode(&p)
 	if err != nil {
-		httpresponse.ResponseError(w, err.Error(), http.StatusInternalServerError)
+		switch {
+		case err == io.EOF: // body is empty
+			httpresponse.ResponseError(w, ErrEmptyInput.Error(), http.StatusBadRequest)
+		case err != nil:
+			httpresponse.ResponseError(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -48,7 +55,13 @@ func (s *ShortenerUseCase) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	shortened, err := s.Do(req.Context(), p.Input)
 	if err != nil {
-		httpresponse.ResponseError(w, err.Error(), http.StatusInternalServerError)
+		switch err {
+		case ErrWrongInput:
+			httpresponse.ResponseError(w, err.Error(), http.StatusBadRequest)
+		default:
+			httpresponse.ResponseError(w, err.Error(), http.StatusInternalServerError)
+
+		}
 		return
 	}
 

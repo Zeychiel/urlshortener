@@ -35,9 +35,9 @@ func main() {
 	getterUseCase := getter.NewGetterUseCase(db)
 
 	router := mux.NewRouter()
-	router.Handle("/", shortenerUseCase).Methods("POST")
 	router.Handle("/{shortened_url}", getterUseCase).Methods("GET")
-	router.Handle("/metrics", promhttp.Handler()).Methods("GET")
+	router.Handle("/", shortenerUseCase).Methods("POST")
+	router.Handle("/metrics", promhttp.Handler()).Methods("GET") // TODO: provide a dedicated server in a more compelx project.
 
 	slog.Info("Server is running on port 8000")
 	server := &http.Server{

@@ -6,13 +6,14 @@ POST http://localhost:8000/
     "url": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc74"
 }
 
-### 200 OK almost the same url
-# @name shortener2
+### 200 OK almost the same url, but different
+# @name shortener
 POST http://localhost:8000/
 
 {
     "url": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc7"
 }
+
 
 ### 200 OK returns the same short url than the first one
 # @name shortener3
@@ -33,11 +34,13 @@ POST http://localhost:8000/
 
 
 
+
 ### 405 Method not allowed input
 GET http://localhost:8000/?input=wrongInput
 
-### 400 Missing input parameter
+### 400 Empty input
 POST http://localhost:8000/?input=wrongInput
+#pouiazneouazeç!éae98HN1397HENDçà!n2937H98DNàç!éeç!n
 
 ### 400 Missing input parameter
 POST http://localhost:8000/
@@ -47,22 +50,24 @@ POST http://localhost:8000/
 }
 
 
+### 400 Missing input parameter
+POST http://localhost:8000/
+
+{
+    "input": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc74"
+}
+
+
+
+
+
 ### 200 OK
 @short = {{shortener.response.body.data.url}}
 GET http://localhost:8000/{{short}}
 
-### 200 OK
-@short2 = {{shortener2.response.body.data.url}}
-GET http://localhost:8000/{{short2}}
-
-
-### 200 OK
-@short3 = {{shortener3.response.body.data.url}}
-GET http://localhost:8000/{{short3}}
-
-### 200 OK
-@short4 = {{shortener4.response.body.data.url}}
-GET http://localhost:8000/{{short4}}
 
 ### 404
 GET http://localhost:8000/wrong
+
+### 405 as the GET route is not triggered. Could be  . 
+GET http://localhost:8000
