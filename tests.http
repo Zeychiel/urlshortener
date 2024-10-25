@@ -40,13 +40,12 @@ GET http://localhost:8000/?input=wrongInput
 
 ### 400 Empty input
 POST http://localhost:8000/?input=wrongInput
-#pouiazneouazeç!éae98HN1397HENDçà!n2937H98DNàç!éeç!n
 
 ### 400 Missing input parameter
 POST http://localhost:8000/
 
 {
-    "input": "https://medium.com/equify-tech/the-three-fundamental-stages-of-an-engineering-career-54dac732fc74"
+    "url": "#pouiazneouazeç!éae98HN1397HENDçà!n2937H98DNàç!éeç!n"
 }
 
 
